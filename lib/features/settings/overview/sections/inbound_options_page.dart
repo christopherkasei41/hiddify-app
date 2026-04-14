@@ -47,7 +47,7 @@ class InboundOptionsPage extends HookConsumerWidget {
             icon: Icons.device_hub_rounded,
             inputToValue: int.tryParse,
             digitsOnly: true,
-            validateInput: isPort,
+            validateInput: (input) => input == "0" || isPort(input),
           ),
           if (PlatformUtils.isLinux)
             ValuePreferenceWidget(
@@ -76,7 +76,7 @@ class InboundOptionsPage extends HookConsumerWidget {
             icon: Icons.device_hub_rounded,
             inputToValue: int.tryParse,
             digitsOnly: true,
-            validateInput: isPort,
+            validateInput: (input) => input == "0" || isPort(input),
           ),
           SwitchListTile.adaptive(
             title: Text(t.pages.settings.inbound.allowConnectionFromLan),
@@ -86,7 +86,6 @@ class InboundOptionsPage extends HookConsumerWidget {
               await ref.read(ConfigOptions.allowConnectionFromLan.notifier).update(value);
               if (value == true) {
                 final ip = await NetworkInfo().getWifiIP();
-                // final ipp = Networkinfo
                 if (ip == null) return;
                 final port = ref.read(ConfigOptions.mixedPort);
                 final link = '#profile-title: LAN only\nsocks://$ip:$port#LAN only';
