@@ -105,8 +105,8 @@ abstract class ConfigOptions {
 
   static final mixedPort = PreferencesNotifier.create<int, int>(
     "mixed-port",
-    12334,
-    validator: (value) => isPort(value.toString()),
+    0,
+    validator: (value) => value == 0 || isPort(value.toString()),
   );
 
   static final tproxyPort = PreferencesNotifier.create<int, int>(
@@ -121,8 +121,8 @@ abstract class ConfigOptions {
   );
   static final directPort = PreferencesNotifier.create<int, int>(
     "direct-port",
-    12337,
-    validator: (value) => isPort(value.toString()),
+    0,
+    validator: (value) => value == 0 || isPort(value.toString()),
   );
 
   static final tunImplementation = PreferencesNotifier.create<TunImplementation, String>(
@@ -161,12 +161,12 @@ abstract class ConfigOptions {
     mapTo: const IntervalInSecondsConverter().toJson,
   );
 
-  static final enableClashApi = PreferencesNotifier.create<bool, bool>("enable-clash-api", true);
+  static final enableClashApi = PreferencesNotifier.create<bool, bool>("enable-clash-api", false);
 
   static final clashApiPort = PreferencesNotifier.create<int, int>(
     "clash-api-port",
-    16756,
-    validator: (value) => isPort(value.toString()),
+    0,
+    validator: (value) => value == 0 || isPort(value.toString()),
   );
 
   static final bypassLan = PreferencesNotifier.create<bool, bool>("bypass-lan", false);
@@ -280,18 +280,9 @@ abstract class ConfigOptions {
   static final warp2WireguardConfig = PreferencesNotifier.create<String, String>("warp2-wireguard-config", "");
 
   static final hasExperimentalFeatures = Provider.autoDispose<bool>((ref) {
-    // final mode = ref.watch(serviceMode);
-    // if (PlatformUtils.isDesktop && mode == ServiceMode.tun) {
-    //   return true;
-    // }
-    // if (ref.watch(enableTlsFragment) || ref.watch(enableTlsMixedSniCase) || ref.watch(enableTlsPadding) || ref.watch(enableMux) || ref.watch(enableWarp) || ref.watch(bypassLan) || ref.watch(allowConnectionFromLan)) {
-    //   return true;
-    // }
-
     return false;
   });
 
-  /// preferences to exclude from share and export
   static final privatePreferencesKeys = {
     "warp.license-key",
     "warp.access-token",
@@ -328,15 +319,6 @@ abstract class ConfigOptions {
     "clash-api-port": clashApiPort,
     "bypass-lan": bypassLan,
     "allow-connection-from-lan": allowConnectionFromLan,
-    // "enable-dns-routing": enableDnsRouting,
-
-    // mux
-    // "mux.enable": enableMux,
-    // "mux.padding": muxPadding,
-    // "mux.max-streams": muxMaxStreams,
-    // "mux.protocol": muxProtocol,
-
-    // tls-tricks
     "tls-tricks.enable-fragment": enableTlsFragment,
     "tls-tricks.fragment-packets": fragmentPackets,
     "tls-tricks.fragment-size": tlsFragmentSize,
@@ -344,8 +326,6 @@ abstract class ConfigOptions {
     "tls-tricks.mixed-sni-case": enableTlsMixedSniCase,
     "tls-tricks.enable-padding": enableTlsPadding,
     "tls-tricks.padding-size": tlsPaddingSize,
-
-    // warp
     "warp.enable": enableWarp,
     "warp.mode": warpDetourMode,
     "warp.license-key": warpLicenseKey,
@@ -365,49 +345,8 @@ abstract class ConfigOptions {
   };
 
   static final singboxConfigOptions = Provider<SingboxConfigOption>((ref) {
-    // final region = ref.watch(Preferences.region);
     final rules = <SingboxRule>[];
-    // final rules = switch (region) {
-    //   Region.ir => [
-    //       const SingboxRule(
-    //         domains: "domain:.ir,geosite:ir",
-    //         ip: "geoip:ir",
-    //         outbound: RuleOutbound.bypass,
-    //       ),
-    //     ],
-    //   Region.cn => [
-    //       const SingboxRule(
-    //         domains: "domain:.cn,geosite:cn",
-    //         ip: "geoip:cn",
-    //         outbound: RuleOutbound.bypass,
-    //       ),
-    //     ],
-    //   Region.ru => [
-    //       const SingboxRule(
-    //         domains: "domain:.ru",
-    //         ip: "geoip:ru",
-    //         outbound: RuleOutbound.bypass,
-    //       ),
-    //     ],
-    //   Region.af => [
-    //       const SingboxRule(
-    //         domains: "domain:.af,geosite:af",
-    //         ip: "geoip:af",
-    //         outbound: RuleOutbound.bypass,
-    //       ),
-    //     ],
-    //   Region.id => [
-    //       const SingboxRule(
-    //         domains: "domain:.id,geosite:id",
-    //         ip: "geoip:id",
-    //         outbound: RuleOutbound.bypass,
-    //       ),
-    //     ],
-    //   _ => <SingboxRule>[],
-    // };
-
     final mode = ref.watch(serviceMode);
-    // final reg = ref.watch(Preferences.region.notifier).raw();
 
     return SingboxConfigOption(
       region: ref.watch(region).name,
@@ -434,19 +373,11 @@ abstract class ConfigOptions {
       enableClashApi: ref.watch(enableClashApi),
       clashApiPort: ref.watch(clashApiPort),
       enableTun: mode == ServiceMode.tun,
-      // enableTunService: mode == false, //ServiceMode.tunService,
       setSystemProxy: mode == ServiceMode.systemProxy,
       bypassLan: ref.watch(bypassLan),
       allowConnectionFromLan: ref.watch(allowConnectionFromLan),
       enableFakeDns: ref.watch(enableFakeDns),
-      // enableDnsRouting: ref.watch(enableDnsRouting),
       independentDnsCache: ref.watch(independentDnsCache),
-      // mux: SingboxMuxOption(
-      //   enable: ref.watch(enableMux),
-      //   padding: ref.watch(muxPadding),
-      //   maxStreams: ref.watch(muxMaxStreams),
-      //   protocol: ref.watch(muxProtocol),
-      // ),
       tlsTricks: SingboxTlsTricks(
         enableFragment: ref.watch(enableTlsFragment),
         fragmentSize: ref.watch(tlsFragmentSize),
