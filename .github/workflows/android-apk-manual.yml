@@ -3,25 +3,28 @@ name: Android APK (patched core)
 on:
   workflow_dispatch:
   push:
-    branches:
-      - main
-    paths-ignore:
-      - '**.md'
-      - 'docs/**'
-      - '.vscode/**'
-      - 'appcast.xml'
+    branches: [ main ]
+    paths:
+      - '.github/workflows/android-apk-manual.yml'
+      - 'patches/core-no-listeners.patch'
+      - 'dependencies.properties'
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
 
 jobs:
   build-android-apk:
     runs-on: ubuntu-latest
+    timeout-minutes: 60
+
     steps:
-      - name: Checkout app (no submodules)
-        uses: actions/checkout@v4
+      - name: Checkout app
+        uses: actions/checkout@v5
         with:
           submodules: false
 
       - name: Setup Java
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: zulu
           java-version: '17'
@@ -34,35 +37,50 @@ jobs:
           sdkmanager --install "ndk;27.0.12077973"
           echo "ANDROID_NDK_HOME=$ANDROID_SDK_ROOT/ndk/27.0.12077973" >> $GITHUB_ENV
 
-      - name: Setup Go 1.25
+      - name: Setup Go
         uses: actions/setup-go@v5
         with:
           go-version: '1.25'
           cache: false
 
-      - name: Clone hiddify-core (official upstream)
+      - name: Clone hiddify-core upstream
         run: |
           git clone --depth=1 https://github.com/hiddify/hiddify-core.git hiddify-core
           cd hiddify-core
           git submodule update --init --recursive --depth=1
-          echo "Core commit: $(git rev-parse HEAD)"
+          echo "Core HEAD: $(git rev-parse HEAD)"
 
-      - name: Apply no-listeners patch
+      - name: Diagnose patch preconditions
+        run: |
+          echo "=== patch file head ==="
+          sed -n '1,80p' patches/core-no-listeners.patch
+          echo "=== core files present ==="
+          ls -la hiddify-core/v2/config || true
+          ls -la hiddify-core/v2/hcore || true
+          ls -la hiddify-core/v2/profile || true
+
+      - name: Apply no-listeners patch (3-way)
         run: |
           cd hiddify-core
-          git apply --ignore-whitespace ../patches/core-no-listeners.patch
-          echo "=== Verify patches ==="
-          grep "MixedPort:      0," v2/config/hiddify_option.go && echo "OK: MixedPort=0"
-          grep "MixedPort > 0" v2/config/builder.go && echo "OK: MixedPort guard"
-          grep "ClashApiPort > 0" v2/config/builder.go && echo "OK: ClashApi guard"
+          git apply --check --ignore-whitespace ../patches/core-no-listeners.patch || {
+            echo "Patch pre-check failed";
+            git status;
+            exit 1;
+          }
+          git apply --3way --ignore-whitespace ../patches/core-no-listeners.patch
+          echo "=== verify key lines ==="
+          grep -n "MixedPort:      0" v2/config/hiddify_option.go
+          grep -n "if hopt.MixedPort > 0" v2/config/builder.go
+          grep -n "RunInstance invoked" v2/hcore/independent_instance.go
+          grep -n "\[diag\] StartService" v2/hcore/start.go
 
-      - name: Install sagernet gomobile
+      - name: Install gomobile tools
         run: |
           go install -v github.com/sagernet/gomobile/cmd/gomobile@v0.1.11
           go install -v github.com/sagernet/gomobile/cmd/gobind@v0.1.11
           echo "$(go env GOPATH)/bin" >> $GITHUB_PATH
 
-      - name: Build Android core from source
+      - name: Build Android core (.aar)
         working-directory: hiddify-core
         run: |
           npm install || true
@@ -81,32 +99,30 @@ jobs:
               -gcflags="all=-N -l" \
               -o bin/hiddify-core.aar \
               github.com/sagernet/sing-box/experimental/libbox ./platform/mobile
-          echo "=== Core build output ==="
           ls -lh bin/
 
-      - name: Copy core AAR to Flutter app libs
+      - name: Copy AAR into app
         run: |
           mkdir -p android/app/libs
           cp hiddify-core/bin/hiddify-core.aar android/app/libs/
-          echo "=== android/app/libs ==="
           ls -lh android/app/libs/
 
       - name: Setup Flutter
-        uses: subosito/flutter-action@v2
+        uses: subosito/flutter-action@v2.21.0
         with:
           flutter-version: '3.38.5'
-          channel: 'stable'
+          channel: stable
           cache: true
 
-      - name: Install Flutter deps
+      - name: Install app deps
         run: |
-          dart pub global activate fastforge
+          make android-apk-install-deps
           echo "$HOME/.pub-cache/bin" >> $GITHUB_PATH
 
-      - name: Prepare (pub get + gen + translate)
+      - name: Prepare app
         run: make common-prepare
 
-      - name: Build APK (arm + arm64 + x64)
+      - name: Build APK
         env:
           SENTRY_DSN: ""
         run: make android-apk-release
@@ -117,3 +133,14 @@ jobs:
           name: android-apk-patched-core
           path: build/app/outputs/flutter-apk/*.apk
           retention-days: 14
+
+      - name: Upload diagnostics (always)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: workflow-diagnostics
+          path: |
+            patches/core-no-listeners.patch
+            hiddify-core/bin/*
+          if-no-files-found: ignore
+          retention-days: 7
