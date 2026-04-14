@@ -1,1 +1,192 @@
-ZGlmZiAtLWdpdCBhL3YyL2NvbmZpZy9idWlsZGVyLmdvIGIvdjIvY29uZmlnL2J1aWxkZXIuZ28KaW5kZXggZjgwY2NiNC4uOGFiM2VmNyAxMDA2NDQKLS0tIGEvdjIvY29uZmlnL2J1aWxkZXIuZ28KKysrIGIvdjIvY29uZmlnL2J1aWxkZXIuZ28KQEAgLTM4NSw3ICszODUsNyBAQCBmdW5jIHNldEV4cGVyaW1lbnRhbChvcHRpb25zICpvcHRpb24uT3B0aW9ucywgaG9wdCAqSGlkZGlmeU9wdGlvbnMpIHsKIAkJCWhvcHQuQ29ubmVjdGlvblRlc3RVcmxzID0gW11zdHJpbmd7aG9wdC5Db25uZWN0aW9uVGVzdFVybH0KIAkJfQogCX0KLQlpZiBob3B0LkVuYWJsZUNsYXNoQXBpIHsKKwlpZiBob3B0LkVuYWJsZUNsYXNoQXBpICYmIGhvcHQuQ2xhc2hBcGlQb3J0ID4gMCB7CiAJCWlmIGhvcHQuQ2xhc2hBcGlTZWNyZXQgPT0gIiIgewogCQkJaG9wdC5DbGFzaEFwaVNlY3JldCA9IGdlbmVyYXRlUmFuZG9tU3RyaW5nKDE2KQogCQl9CkBAIC00OTUsMjUgKzQ5NSwyNyBAQCBmdW5jIHNldEluYm91bmQob3B0aW9ucyAqb3B0aW9uLk9wdGlvbnMsIGhvcHQgKkhpZGRpZnlPcHRpb25zKSB7CiAJZm9yIF8sIGJpbmQgOj0gcmFuZ2UgYmluZHMgewogCQlhZGRyIDo9IGJhZG9wdGlvbi5BZGRyKG5ldGlwLk11c3RQYXJzZUFkZHIoYmluZCkpCiAKLQkJb3B0aW9ucy5JbmJvdW5kcyA9IGFwcGVuZCgKLQkJCW9wdGlvbnMuSW5ib3VuZHMsCi0JCQlvcHRpb24uSW5ib3VuZHsKLQkJCQlUeXBlOiBDLlR5cGVNaXhlZCwKLQkJCQlUYWc6ICBJbmJvdW5kTWl4ZWRUYWcgKyBiaW5kLAotCQkJCU9wdGlvbnM6ICZvcHRpb24uSFRUUE1peGVkSW5ib3VuZE9wdGlvbnN7Ci0JCQkJCUxpc3Rlbk9wdGlvbnM6IG9wdGlvbi5MaXN0ZW5PcHRpb25zewotCQkJCQkJTGlzdGVuOiAgICAgJmFkZHIsCi0JCQkJCQlMaXN0ZW5Qb3J0OiBob3B0Lk1peGVkUG9ydCwKLQkJCQkJCS8vIEluYm91bmRPcHRpb25zOiBvcHRpb24uSW5ib3VuZE9wdGlvbnN7Ci0JCQkJCQkvLyAJU25pZmZFbmFibGVkOiAgICAgICAgICAgICB0cnVlLAotCQkJCQkJLy8gCVNuaWZmT3ZlcnJpZGVEZXN0aW5hdGlvbjogdHJ1ZSwKLQkJCQkJCS8vIAlEb21haW5TdHJhdGVneTogICAgICAgICAgIGluYm91bmREb21haW5TdHJhdGVneSwKLQkJCQkJCS8vIH0sCisJCWlmIGhvcHQuTWl4ZWRQb3J0ID4gMCB7CisJCQlvcHRpb25zLkluYm91bmRzID0gYXBwZW5kKAorCQkJCW9wdGlvbnMuSW5ib3VuZHMsCisJCQkJb3B0aW9uLkluYm91bmR7CisJCQkJCVR5cGU6IEMuVHlwZU1peGVkLAorCQkJCQlUYWc6ICBJbmJvdW5kTWl4ZWRUYWcgKyBiaW5kLAorCQkJCQlPcHRpb25zOiAmb3B0aW9uLkhUVFBNaXhlZEluYm91bmRPcHRpb25zeworCQkJCQkJTGlzdGVuT3B0aW9uczogb3B0aW9uLkxpc3Rlbk9wdGlvbnN7CisJCQkJCQkJTGlzdGVuOiAgICAgJmFkZHIsCisJCQkJCQkJTGlzdGVuUG9ydDogaG9wdC5NaXhlZFBvcnQsCisJCQkJCQkJLy8gSW5ib3VuZE9wdGlvbnM6IG9wdGlvbi5JbmJvdW5kT3B0aW9uc3sKKwkJCQkJCQkvLyAJU25pZmZFbmFibGVkOiAgICAgICAgICAgICB0cnVlLAorCQkJCQkJCS8vIAlTbmlmZk92ZXJyaWRlRGVzdGluYXRpb246IHRydWUsCisJCQkJCQkJLy8gCURvbWFpblN0cmF0ZWd5OiAgICAgICAgICAgaW5ib3VuZERvbWFpblN0cmF0ZWd5LAorCQkJCQkJCS8vIH0sCisJCQkJCQl9LAorCQkJCQkJU2V0U3lzdGVtUHJveHk6IGhvcHQuU2V0U3lzdGVtUHJveHksCiAJCQkJCX0sCi0JCQkJCVNldFN5c3RlbVByb3h5OiBob3B0LlNldFN5c3RlbVByb3h5LAogCQkJCX0sCi0JCQl9LAotCQkpCisJCQkpCisJCX0KIAkJaWYgQy5Jc0xpbnV4ICYmICFDLklzQW5kcm9pZCAmJiBob3B0LlRQcm94eVBvcnQgPiAwICYmIGh1dGlscy5Jc0FkbWluKCkgewogCQkJb3B0aW9ucy5JbmJvdW5kcyA9IGFwcGVuZCgKIAkJCQlvcHRpb25zLkluYm91bmRzLApkaWZmIC0tZ2l0IGEvdjIvY29uZmlnL2hpZGRpZnlfb3B0aW9uLmdvIGIvdjIvY29uZmlnL2hpZGRpZnlfb3B0aW9uLmdvCmluZGV4IGMzZmE5YmYuLjZhMTcwZjYgMTAwNjQ0Ci0tLSBhL3YyL2NvbmZpZy9oaWRkaWZ5X29wdGlvbi5nbworKysgYi92Mi9jb25maWcvaGlkZGlmeV9vcHRpb24uZ28KQEAgLTEyMCwxMCArMTIwLDEwIEBAIGZ1bmMgRGVmYXVsdEhpZGRpZnlPcHRpb25zKCkgKkhpZGRpZnlPcHRpb25zIHsKIAkJSW5ib3VuZE9wdGlvbnM6IEluYm91bmRPcHRpb25zewogCQkJRW5hYmxlVHVuOiAgICAgIGZhbHNlLAogCQkJU2V0U3lzdGVtUHJveHk6IGZhbHNlLAotCQkJTWl4ZWRQb3J0OiAgICAgIDEyMzM0LAorCQkJTWl4ZWRQb3J0OiAgICAgIDAsCiAJCQlUUHJveHlQb3J0OiAgICAgMTIzMzUsCiAJCQlSZWRpcmVjdFBvcnQ6ICAgMTIzMzYsCi0JCQlEaXJlY3RQb3J0OiAgICAgMTIzMzcsCisJCQlEaXJlY3RQb3J0OiAgICAgMCwKIAkJCU1UVTogICAgICAgICAgICA5MDAwLAogCQkJU3RyaWN0Um91dGU6ICAgIHRydWUsCiAJCQlUVU5TdGFjazogICAgICAgIm1peGVkIiwKQEAgLTE0Myw5ICsxNDMsOSBAQCBmdW5jIERlZmF1bHRIaWRkaWZ5T3B0aW9ucygpICpIaWRkaWZ5T3B0aW9ucyB7CiAJCS8vIExvZ0ZpbGU6ICAgICAgICAiL2Rldi9udWxsIiwKIAkJTG9nRmlsZTogICAgICAgICJkYXRhL2JveC5sb2ciLAogCQlSZWdpb246ICAgICAgICAgIm90aGVyIiwKLQkJRW5hYmxlQ2xhc2hBcGk6IHRydWUsCisJCUVuYWJsZUNsYXNoQXBpOiBmYWxzZSwKIAotCQlDbGFzaEFwaVBvcnQ6ICAgMTY3NTYsCisJCUNsYXNoQXBpUG9ydDogICAwLAogCQlDbGFzaEFwaVNlY3JldDogIiIsCiAJCS8vIEdlb0lQUGF0aDogICAgICAiZ2VvaXAuZGIiLAogCQkvLyBHZW9TaXRlUGF0aDogICAgImdlb3NpdGUuZGIiLAo=
+diff --git a/v2/config/builder.go b/v2/config/builder.go
+index f80ccb4..8ab3ef7 100644
+--- a/v2/config/builder.go
++++ b/v2/config/builder.go
+@@ -385,7 +385,7 @@ func setExperimental(options *option.Options, hopt *HiddifyOptions) {
+ 			hopt.ConnectionTestUrls = []string{hopt.ConnectionTestUrl}
+ 		}
+ 	}
+-	if hopt.EnableClashApi {
++	if hopt.EnableClashApi && hopt.ClashApiPort > 0 {
+ 		if hopt.ClashApiSecret == "" {
+ 			hopt.ClashApiSecret = generateRandomString(16)
+ 		}
+@@ -495,25 +495,27 @@ func setInbound(options *option.Options, hopt *HiddifyOptions) {
+ 	for _, bind := range binds {
+ 		addr := badoption.Addr(netip.MustParseAddr(bind))
+ 
+-		options.Inbounds = append(
+-			options.Inbounds,
+-			option.Inbound{
+-				Type: C.TypeMixed,
+-				Tag:  InboundMixedTag + bind,
+-				Options: &option.HTTPMixedInboundOptions{
+-					ListenOptions: option.ListenOptions{
+-						Listen:     &addr,
+-						ListenPort: hopt.MixedPort,
+-						// InboundOptions: option.InboundOptions{
+-						// 	SniffEnabled:             true,
+-						// 	SniffOverrideDestination: true,
+-						// 	DomainStrategy:           inboundDomainStrategy,
+-						// },
++		if hopt.MixedPort > 0 {
++			options.Inbounds = append(
++				options.Inbounds,
++				option.Inbound{
++					Type: C.TypeMixed,
++					Tag:  InboundMixedTag + bind,
++					Options: &option.HTTPMixedInboundOptions{
++						ListenOptions: option.ListenOptions{
++							Listen:     &addr,
++							ListenPort: hopt.MixedPort,
++							// InboundOptions: option.InboundOptions{
++							// 	SniffEnabled:             true,
++							// 	SniffOverrideDestination: true,
++							// 	DomainStrategy:           inboundDomainStrategy,
++							// },
++						},
++						SetSystemProxy: hopt.SetSystemProxy,
+ 					},
+-					SetSystemProxy: hopt.SetSystemProxy,
+ 				},
+-			},
+-		)
++			)
++		}
+ 		if C.IsLinux && !C.IsAndroid && hopt.TProxyPort > 0 && hutils.IsAdmin() {
+ 			options.Inbounds = append(
+ 				options.Inbounds,
+diff --git a/v2/config/hiddify_option.go b/v2/config/hiddify_option.go
+index c3fa9bf..6a170f6 100644
+--- a/v2/config/hiddify_option.go
++++ b/v2/config/hiddify_option.go
+@@ -120,10 +120,10 @@ func DefaultHiddifyOptions() *HiddifyOptions {
+ 		InboundOptions: InboundOptions{
+ 			EnableTun:      false,
+ 			SetSystemProxy: false,
+-			MixedPort:      12334,
++			MixedPort:      0,
+ 			TProxyPort:     12335,
+ 			RedirectPort:   12336,
+-			DirectPort:     12337,
++			DirectPort:     0,
+ 			MTU:            9000,
+ 			StrictRoute:    true,
+ 			TUNStack:       "mixed",
+@@ -143,9 +143,9 @@ func DefaultHiddifyOptions() *HiddifyOptions {
+ 		// LogFile:        "/dev/null",
+ 		LogFile:        "data/box.log",
+ 		Region:         "other",
+-		EnableClashApi: true,
++		EnableClashApi: false,
+ 
+-		ClashApiPort:   16756,
++		ClashApiPort:   0,
+ 		ClashApiSecret: "",
+ 		// GeoIPPath:      "geoip.db",
+ 		// GeoSitePath:    "geosite.db",
+diff --git a/v2/hcore/grpc_server.go b/v2/hcore/grpc_server.go
+index f3e76b2..c347a6d 100644
+--- a/v2/hcore/grpc_server.go
++++ b/v2/hcore/grpc_server.go
+@@ -10,10 +10,8 @@ import (
+ 	"encoding/pem"
+ 	"fmt"
+ 	"io"
+-	"net/http"
+ 
+ 	"net"
+-	_ "net/http/pprof"
+ 	"os"
+ 	"strconv"
+ 	"strings"
+@@ -42,11 +40,6 @@ func Setup(params *SetupRequest, platformInterface libbox.PlatformInterface) err
+ 		Log(LogLevel_FATAL, LogType_CORE, err.Error())
+ 		<-time.After(5 * time.Second)
+ 	})
+-	if params.Debug {
+-		go func() {
+-			http.ListenAndServe("localhost:6060", nil)
+-		}()
+-	}
+ 	mu.Lock()
+ 	defer mu.Unlock()
+ 	if grpcServer[params.Mode] != nil {
+diff --git a/v2/hcore/independent_instance.go b/v2/hcore/independent_instance.go
+index 4e38d06..2d2749e 100644
+--- a/v2/hcore/independent_instance.go
++++ b/v2/hcore/independent_instance.go
+@@ -4,7 +4,6 @@ import (
+ 	"context"
+ 	"fmt"
+ 	"io"
+-	"net"
+ 	"net/http"
+ 	"time"
+ 
+@@ -14,16 +13,6 @@ import (
+ 	"github.com/sagernet/sing-box/option"
+ )
+ 
+-func getRandomAvailblePort() uint16 {
+-	// TODO: implement it
+-	listener, err := net.Listen("tcp", ":0")
+-	if err != nil {
+-		panic(err)
+-	}
+-	defer listener.Close()
+-	return uint16(listener.Addr().(*net.TCPAddr).Port)
+-}
+-
+ func RunInstanceString(ctx context.Context, hiddifySettings *config.HiddifyOptions, proxiesInput string) (*HiddifyInstance, error) {
+ 	if hiddifySettings == nil {
+ 		hiddifySettings = config.DefaultHiddifyOptions()
+@@ -41,7 +30,7 @@ func RunInstance(ctx context.Context, hiddifySettings *config.HiddifyOptions, si
+ 		hiddifySettings = config.DefaultHiddifyOptions()
+ 	}
+ 	hiddifySettings.EnableClashApi = false
+-	hiddifySettings.InboundOptions.MixedPort = getRandomAvailblePort()
++	hiddifySettings.InboundOptions.MixedPort = 0
+ 	hiddifySettings.InboundOptions.EnableTun = false
+ 	hiddifySettings.InboundOptions.EnableTunService = false
+ 	hiddifySettings.InboundOptions.SetSystemProxy = false
+diff --git a/v2/profile/profile_repository.go b/v2/profile/profile_repository.go
+index d48f61a..737d3be 100644
+--- a/v2/profile/profile_repository.go
++++ b/v2/profile/profile_repository.go
+@@ -6,12 +6,10 @@ import (
+ 	"os"
+ 	"time"
+ 
+-	"github.com/hiddify/hiddify-core/v2/config"
+ 	"github.com/hiddify/hiddify-core/v2/db"
+ 	"github.com/hiddify/hiddify-core/v2/hcommon"
+ 	"github.com/hiddify/hiddify-core/v2/hcommon/request"
+ 	hcore "github.com/hiddify/hiddify-core/v2/hcore"
+-	"github.com/sagernet/sing-box/option"
+ )
+ 
+ const (
+@@ -255,22 +253,6 @@ func downloadProfileContent(ctx context.Context, url string) (*request.Response,
+ 			Method:  request.GET,
+ 			Timeout: 5 * time.Second,
+ 		})
+-		if resp == nil {
+-			instance, err1 := hcore.RunInstance(ctx, config.DefaultHiddifyOptions(), &option.Options{})
+-			if err1 != nil {
+-				return nil, fmt.Errorf("%v,error running instance: %v", err, err1)
+-			}
+-			instance.PingCloudflare()
+-			resp, err1 = request.Send(request.Request{
+-				Url:       url,
+-				Method:    request.GET,
+-				Timeout:   5 * time.Second,
+-				SocksPort: instance.ListenPort,
+-			})
+-			if err1 != nil {
+-				err = fmt.Errorf("%v, Fragment: %v", err, err1)
+-			}
+-		}
+ 	}
+ 	if resp == nil {
+ 		return nil, err
