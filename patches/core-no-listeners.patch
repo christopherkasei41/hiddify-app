@@ -85,8 +85,28 @@ index c3fa9bf..6a170f6 100644
  		ClashApiSecret: "",
  		// GeoIPPath:      "geoip.db",
  		// GeoSitePath:    "geosite.db",
+diff --git a/v2/hcore/buildconfighelper.go b/v2/hcore/buildconfighelper.go
+index aed128d..e732ed3 100644
+--- a/v2/hcore/buildconfighelper.go
++++ b/v2/hcore/buildconfighelper.go
+@@ -3,6 +3,7 @@ package hcore
+ import (
+ 	"context"
+ 	"encoding/json"
++	"fmt"
+ 	"os"
+ 
+ 	"github.com/hiddify/hiddify-core/v2/config"
+@@ -122,6 +123,7 @@ func ChangeHiddifySettings(in *ChangeHiddifySettingsRequest, insert bool) (*Core
+ 	if err != nil {
+ 		return nil, err
+ 	}
++	Log(LogLevel_INFO, LogType_CORE, fmt.Sprintf("[diag] ChangeHiddifySettings: logLevel=%s mixed=%d direct=%d tproxy=%d redirect=%d enableClashApi=%v clashApiPort=%d setSystemProxy=%v enableTun=%v", static.HiddifyOptions.LogLevel, static.HiddifyOptions.InboundOptions.MixedPort, static.HiddifyOptions.InboundOptions.DirectPort, static.HiddifyOptions.InboundOptions.TProxyPort, static.HiddifyOptions.InboundOptions.RedirectPort, static.HiddifyOptions.EnableClashApi, static.HiddifyOptions.ClashApiPort, static.HiddifyOptions.InboundOptions.SetSystemProxy, static.HiddifyOptions.InboundOptions.EnableTun))
+ 
+ 	if static.HiddifyOptions.Warp.WireguardConfigStr != "" {
+ 		err := json.Unmarshal([]byte(static.HiddifyOptions.Warp.WireguardConfigStr), &static.HiddifyOptions.Warp.WireguardConfig)
 diff --git a/v2/hcore/grpc_server.go b/v2/hcore/grpc_server.go
-index f3e76b2..c347a6d 100644
+index f3e76b2..e5e1e15 100644
 --- a/v2/hcore/grpc_server.go
 +++ b/v2/hcore/grpc_server.go
 @@ -10,10 +10,8 @@ import (
@@ -113,7 +133,7 @@ index f3e76b2..c347a6d 100644
  	defer mu.Unlock()
  	if grpcServer[params.Mode] != nil {
 diff --git a/v2/hcore/independent_instance.go b/v2/hcore/independent_instance.go
-index 4e38d06..2d2749e 100644
+index 4e38d06..d562b9d 100644
 --- a/v2/hcore/independent_instance.go
 +++ b/v2/hcore/independent_instance.go
 @@ -4,7 +4,6 @@ import (
@@ -141,17 +161,129 @@ index 4e38d06..2d2749e 100644
  func RunInstanceString(ctx context.Context, hiddifySettings *config.HiddifyOptions, proxiesInput string) (*HiddifyInstance, error) {
  	if hiddifySettings == nil {
  		hiddifySettings = config.DefaultHiddifyOptions()
-@@ -41,7 +30,7 @@ func RunInstance(ctx context.Context, hiddifySettings *config.HiddifyOptions, si
+@@ -40,8 +29,9 @@ func RunInstance(ctx context.Context, hiddifySettings *config.HiddifyOptions, si
+ 	if hiddifySettings == nil {
  		hiddifySettings = config.DefaultHiddifyOptions()
  	}
++	Log(LogLevel_WARNING, LogType_CORE, "[diag] RunInstance invoked (temporary independent instance path)")
  	hiddifySettings.EnableClashApi = false
 -	hiddifySettings.InboundOptions.MixedPort = getRandomAvailblePort()
 +	hiddifySettings.InboundOptions.MixedPort = 0
  	hiddifySettings.InboundOptions.EnableTun = false
  	hiddifySettings.InboundOptions.EnableTunService = false
  	hiddifySettings.InboundOptions.SetSystemProxy = false
+@@ -59,6 +49,7 @@ func RunInstance(ctx context.Context, hiddifySettings *config.HiddifyOptions, si
+ 
+ 	instance, err := NewService(ctx, *finalConfigs)
+ 	if err != nil {
++		Log(LogLevel_ERROR, LogType_CORE, fmt.Sprintf("[diag] RunInstance: NewService failed: %v", err))
+ 		return nil, err
+ 	}
+ 
+@@ -66,6 +57,7 @@ func RunInstance(ctx context.Context, hiddifySettings *config.HiddifyOptions, si
+ 	hservice := &HiddifyInstance{
+ 		StartedService: instance,
+ 		ListenPort:     hiddifySettings.InboundOptions.MixedPort}
++	Log(LogLevel_INFO, LogType_CORE, fmt.Sprintf("[diag] RunInstance: started with listenPort=%d", hservice.ListenPort))
+ 	hservice.PingCloudflare()
+ 	return hservice, nil
+ }
+diff --git a/v2/hcore/start.go b/v2/hcore/start.go
+index 0083797..0bc8797 100644
+--- a/v2/hcore/start.go
++++ b/v2/hcore/start.go
+@@ -2,6 +2,7 @@ package hcore
+ 
+ import (
+ 	"context"
++	"encoding/json"
+ 	"fmt"
+ 	"path/filepath"
+ 	"time"
+@@ -91,17 +92,22 @@ func StartService(ctx context.Context, in *StartRequest) (coreResponse *CoreInfo
+ 		}, nil
+ 	}
+ 	SetCoreStatus(CoreStates_STARTING, MessageType_EMPTY, "")
++	Log(LogLevel_INFO, LogType_CORE, "[diag] StartService: state -> STARTING")
+ 
+ 	in, err = loadLastStartRequestIfNeeded(in)
+ 	if err != nil {
++		Log(LogLevel_ERROR, LogType_CORE, fmt.Sprintf("[diag] StartService: loadLastStartRequestIfNeeded failed: %v", err))
+ 		return errorWrapper(MessageType_ERROR_BUILDING_CONFIG, err)
+ 	}
++	Log(LogLevel_INFO, LogType_CORE, fmt.Sprintf("[diag] StartService input: raw=%v delay=%v disableMemLimit=%v configPathSet=%v contentLen=%d configName=%q", in.EnableRawConfig, in.DelayStart, in.DisableMemoryLimit, in.ConfigPath != "", len(in.ConfigContent), in.ConfigName))
+ 
+ 	static.previousStartRequest = in
+ 	options, err := BuildConfig(ctx, in)
+ 	if err != nil {
++		Log(LogLevel_ERROR, LogType_CORE, fmt.Sprintf("[diag] StartService: BuildConfig failed: %v", err))
+ 		return errorWrapper(MessageType_ERROR_BUILDING_CONFIG, err)
+ 	}
++	logInboundSummary(options)
+ 	saveLastStartRequest(in)
+ 
+ 	Log(LogLevel_DEBUG, LogType_CORE, "Main Service pre start")
+@@ -133,17 +139,58 @@ func StartService(ctx context.Context, in *StartRequest) (coreResponse *CoreInfo
+ 	libbox.SetMemoryLimit(C.IsIos || !in.DisableMemoryLimit)
+ 	instance, err := NewService(ctx, *options)
+ 	if err != nil {
++		Log(LogLevel_ERROR, LogType_CORE, fmt.Sprintf("[diag] StartService: NewService failed: %v", err))
+ 		return errorWrapper(MessageType_START_SERVICE, err)
+ 	}
+ 	static.StartedService = instance
++	Log(LogLevel_INFO, LogType_CORE, "[diag] StartService: NewService started successfully")
+ 	if static.debug {
+ 		dumpGoroutinesToFile(fmt.Sprint(sWorkingPath, "/data/goroutine-start.log"))
+ 	}
+ 	for inb := range options.Inbounds {
+ 		if opts, ok := options.Inbounds[inb].Options.(option.SocksInboundOptions); ok {
+ 			static.ListenPort = opts.ListenPort
++			Log(LogLevel_INFO, LogType_CORE, fmt.Sprintf("[diag] StartService: socks listen port detected=%d", static.ListenPort))
+ 		}
+ 	}
+ 
+ 	return SetCoreStatus(CoreStates_STARTED, MessageType_EMPTY, ""), nil
+ }
++
++func logInboundSummary(options *option.Options) {
++	if options == nil {
++		Log(LogLevel_WARNING, LogType_CORE, "[diag] InboundSummary: options is nil")
++		return
++	}
++	Log(LogLevel_INFO, LogType_CORE, fmt.Sprintf("[diag] InboundSummary: count=%d", len(options.Inbounds)))
++	for i, inb := range options.Inbounds {
++		listen := ""
++		listenPort := float64(0)
++		payload, err := json.Marshal(inb)
++		if err == nil {
++			var m map[string]interface{}
++			if json.Unmarshal(payload, &m) == nil {
++				if opts, ok := m["options"].(map[string]interface{}); ok {
++					if v, ok := opts["listen"].(string); ok {
++						listen = v
++					}
++					if v, ok := opts["listen_port"].(float64); ok {
++						listenPort = v
++					}
++					if lo, ok := opts["listen_options"].(map[string]interface{}); ok {
++						if v, ok := lo["listen"].(string); ok {
++							listen = v
++						}
++						if v, ok := lo["listen_port"].(float64); ok {
++							listenPort = v
++						}
++					}
++				}
++			}
++		}
++		Log(LogLevel_INFO, LogType_CORE, fmt.Sprintf("[diag] Inbound[%d]: type=%s tag=%s listen=%s listen_port=%d", i, inb.Type, inb.Tag, listen, int(listenPort)))
++	}
++	if options.Experimental != nil && options.Experimental.ClashAPI != nil {
++		Log(LogLevel_INFO, LogType_CORE, fmt.Sprintf("[diag] Experimental: clash_external_controller=%s", options.Experimental.ClashAPI.ExternalController))
++	}
++}
 diff --git a/v2/profile/profile_repository.go b/v2/profile/profile_repository.go
-index d48f61a..737d3be 100644
+index d48f61a..b0fa804 100644
 --- a/v2/profile/profile_repository.go
 +++ b/v2/profile/profile_repository.go
 @@ -6,12 +6,10 @@ import (
@@ -167,7 +299,24 @@ index d48f61a..737d3be 100644
  )
  
  const (
-@@ -255,22 +253,6 @@ func downloadProfileContent(ctx context.Context, url string) (*request.Response,
+@@ -243,36 +241,29 @@ func AddByUrl(ctx context.Context, url string, optionalName string, markAsActive
+ 
+ // downloadProfileContent handles the download logic
+ func downloadProfileContent(ctx context.Context, url string) (*request.Response, error) {
++	hcore.Log(hcore.LogLevel_INFO, hcore.LogType_CORE, fmt.Sprintf("[diag] profile.download: start url=%q", url))
+ 	resp, err := request.Send(request.Request{
+ 		Url:       url,
+ 		Method:    request.GET,
+ 		SocksPort: 12334,
+ 		Timeout:   5 * time.Second,
+ 	})
++	if resp != nil {
++		hcore.Log(hcore.LogLevel_INFO, hcore.LogType_CORE, fmt.Sprintf("[diag] profile.download: success via socksPort=12334 status=%d", resp.StatusCode))
++	}
+ 	if resp == nil {
++		hcore.Log(hcore.LogLevel_WARNING, hcore.LogType_CORE, "[diag] profile.download: socksPort=12334 failed, trying direct")
+ 		resp, err = request.Send(request.Request{
+ 			Url:     url,
  			Method:  request.GET,
  			Timeout: 5 * time.Second,
  		})
@@ -186,7 +335,12 @@ index d48f61a..737d3be 100644
 -			if err1 != nil {
 -				err = fmt.Errorf("%v, Fragment: %v", err, err1)
 -			}
--		}
++		if resp != nil {
++			hcore.Log(hcore.LogLevel_INFO, hcore.LogType_CORE, fmt.Sprintf("[diag] profile.download: success via direct status=%d", resp.StatusCode))
+ 		}
  	}
  	if resp == nil {
++		hcore.Log(hcore.LogLevel_ERROR, hcore.LogType_CORE, fmt.Sprintf("[diag] profile.download: all attempts failed err=%v", err))
  		return nil, err
+ 	}
+ 	if resp.StatusCode == 401 {
