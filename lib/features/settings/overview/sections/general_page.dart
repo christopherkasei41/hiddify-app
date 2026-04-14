@@ -122,7 +122,7 @@ class GeneralPage extends HookConsumerWidget {
             preferences: ref.watch(ConfigOptions.clashApiPort.notifier),
             title: t.pages.settings.general.clashApiPort,
             icon: Icons.api_rounded,
-            validateInput: isPort,
+            validateInput: (input) => input == "0" || isPort(input),
             digitsOnly: true,
             inputToValue: int.tryParse,
           ),
