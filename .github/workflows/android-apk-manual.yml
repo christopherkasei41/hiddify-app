@@ -43,9 +43,10 @@ jobs:
 
       - name: Clone hiddify-core
         run: |
-          git clone --depth=1 https://github.com/hiddify/hiddify-core.git hiddify-core
+          git clone --filter=blob:none https://github.com/hiddify/hiddify-core.git hiddify-core
           cd hiddify-core
-          git submodule update --init --recursive --depth=1
+          git submodule sync --recursive
+          git submodule update --init --recursive
 
       - name: Apply patch
         run: |
