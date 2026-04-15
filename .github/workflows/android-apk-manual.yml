@@ -90,10 +90,15 @@ jobs:
       - name: Prepare
         run: make common-prepare
 
+      - name: Clean Flutter & Gradle
+        run: |
+          flutter clean
+          cd android && ./gradlew clean || true; cd ..
+
       - name: Build APK
         env:
           SENTRY_DSN: ""
-          GRADLE_OPTS: "-Xmx2g"
+          GRADLE_OPTS: "-Xmx3g -Dorg.gradle.jvmargs=-Xmx3g"
         run: make android-apk-release
 
       - name: Upload APK
