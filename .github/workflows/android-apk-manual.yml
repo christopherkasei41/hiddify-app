@@ -38,49 +38,49 @@ jobs:
           channel: 'stable'
           cache: true
 
-      - name: Download & patch core (official upstream)
+      - name: Download & patch core (optional, non-blocking)
         run: |
-          set -e
-          echo "[*] Downloading official hiddify-core..."
-          git clone --depth=1 \
-            https://github.com/hiddify/hiddify-core.git \
-            hiddify-core-src 2>&1 | tail -20 || true
+          mkdir -p android/app/libs
           
-          if [ ! -d hiddify-core-src ]; then
-            echo "[!] Failed to clone, using release AAR fallback..."
-            mkdir -p android/app/libs
-            echo "// Fallback: using core from app-embedded resources" > /tmp/fallback.txt
-          else
+          echo "[*] Attempting to download hiddify-core..."
+          if git clone --depth=1 https://github.com/hiddify/hiddify-core.git hiddify-core-src 2>&1 | head -20; then
+            echo "[+] Clone successful"
             cd hiddify-core-src
+            
             echo "[*] Syncing submodules..."
-            git submodule update --init --recursive --depth=1 2>&1 | tail -5 || true
+            git submodule update --init --recursive --depth=1 2>&1 | head -10 || echo "[!] Submodule sync had issues, continuing..."
             
-            echo "[*] Applying no-listeners patch..."
             cd ..
+            echo "[*] Applying patch..."
             if [ -f patches/core-no-listeners.patch ]; then
-              patch -p1 -d hiddify-core-src < patches/core-no-listeners.patch || true
+              patch -p1 -d hiddify-core-src < patches/core-no-listeners.patch || echo "[!] Patch apply failed, continuing..."
             fi
             
-            echo "[*] Building AAR..."
+            echo "[*] Building core AAR..."
             cd hiddify-core-src
-            go install -v github.com/sagernet/gomobile/cmd/gomobile@v0.1.11 2>&1 | grep -i gomobile || true
-            go install -v github.com/sagernet/gomobile/cmd/gobind@v0.1.11 2>&1 | grep -i gobind || true
+            go install -v github.com/sagernet/gomobile/cmd/gomobile@v0.1.11 >/dev/null 2>&1 || echo "[!] gomobile install failed"
+            go install -v github.com/sagernet/gomobile/cmd/gobind@v0.1.11 >/dev/null 2>&1 || echo "[!] gobind install failed"
             export PATH="$PATH:$(go env GOPATH)/bin"
-            npm install || true
+            npm install >/dev/null 2>&1 || echo "[!] npm install failed"
             
-            echo "[*] Running: make android"
-            make android 2>&1 | tail -30
-            
-            mkdir -p ../android/app/libs
-            if [ -f bin/hiddify-core.aar ]; then
-              cp bin/hiddify-core.aar ../android/app/libs/
-              echo "[+] Core AAR copied successfully"
-              ls -lh ../android/app/libs/
+            if make android >/dev/null 2>&1; then
+              if [ -f bin/hiddify-core.aar ]; then
+                cp bin/hiddify-core.aar ../android/app/libs/
+                echo "[+] Core AAR built and copied"
+              else
+                echo "[!] AAR not found after build"
+              fi
             else
-              echo "[!] AAR not found after build, continue with app defaults"
+              echo "[!] make android failed, continuing with default core..."
             fi
+            cd ..
+          else
+            echo "[!] Clone failed, will use app's embedded core"
           fi
+          
+          ls -lh android/app/libs/ || echo "[*] No custom core libs"
         shell: bash
+        continue-on-error: true
 
       - name: Install dependencies
         run: |
@@ -90,22 +90,15 @@ jobs:
       - name: Prepare
         run: make common-prepare
 
-      - name: Build APK (production release)
+      - name: Build APK
         env:
           SENTRY_DSN: ""
           GRADLE_OPTS: "-Xmx2g"
-        run: make android-apk-release || flutter build apk --release
-
-      - name: Check build artifacts
-        run: |
-          echo "[*] Looking for APK artifacts..."
-          find . -name "*.apk" -type f -ls 2>/dev/null | head -20
+        run: make android-apk-release
 
       - name: Upload APK
-        if: success()
         uses: actions/upload-artifact@v4
         with:
           name: android-apk-patched-core
           path: build/app/outputs/flutter-apk/*.apk
-          if-no-files-found: warn
           retention-days: 14
