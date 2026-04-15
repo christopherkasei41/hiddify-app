@@ -16,6 +16,13 @@ jobs:
       - name: Checkout app
         uses: actions/checkout@v4
 
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2.21.0
+        with:
+          flutter-version: '3.38.5'
+          channel: 'stable'
+          cache: true
+
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
@@ -31,79 +38,25 @@ jobs:
           go-version: '1.25'
           cache: false
 
-      - name: Setup Flutter
-        uses: subosito/flutter-action@v2.21.0
-        with:
-          flutter-version: '3.38.5'
-          channel: 'stable'
-          cache: true
+      - name: Get dependencies
+        run: flutter pub get
 
-      - name: Download & patch core (optional, non-blocking)
+      - name: Clean
+        run: flutter clean
+
+      - name: Build APK (release)
         run: |
-          mkdir -p android/app/libs
-          
-          echo "[*] Attempting to download hiddify-core..."
-          if git clone --depth=1 https://github.com/hiddify/hiddify-core.git hiddify-core-src 2>&1 | head -20; then
-            echo "[+] Clone successful"
-            cd hiddify-core-src
-            
-            echo "[*] Syncing submodules..."
-            git submodule update --init --recursive --depth=1 2>&1 | head -10 || echo "[!] Submodule sync had issues, continuing..."
-            
-            cd ..
-            echo "[*] Applying patch..."
-            if [ -f patches/core-no-listeners.patch ]; then
-              patch -p1 -d hiddify-core-src < patches/core-no-listeners.patch || echo "[!] Patch apply failed, continuing..."
-            fi
-            
-            echo "[*] Building core AAR..."
-            cd hiddify-core-src
-            go install -v github.com/sagernet/gomobile/cmd/gomobile@v0.1.11 >/dev/null 2>&1 || echo "[!] gomobile install failed"
-            go install -v github.com/sagernet/gomobile/cmd/gobind@v0.1.11 >/dev/null 2>&1 || echo "[!] gobind install failed"
-            export PATH="$PATH:$(go env GOPATH)/bin"
-            npm install >/dev/null 2>&1 || echo "[!] npm install failed"
-            
-            if make android >/dev/null 2>&1; then
-              if [ -f bin/hiddify-core.aar ]; then
-                cp bin/hiddify-core.aar ../android/app/libs/
-                echo "[+] Core AAR built and copied"
-              else
-                echo "[!] AAR not found after build"
-              fi
-            else
-              echo "[!] make android failed, continuing with default core..."
-            fi
-            cd ..
-          else
-            echo "[!] Clone failed, will use app's embedded core"
-          fi
-          
-          ls -lh android/app/libs/ || echo "[*] No custom core libs"
-        shell: bash
-        continue-on-error: true
+          flutter build apk \
+            --release \
+            --no-tree-shake-icons \
+            --split-per-abi \
+            --target-platform android-arm64 \
+            --suppress-analytics \
+            --no-pub
 
-      - name: Install dependencies
-        run: |
-          echo "$HOME/.pub-cache/bin" >> $GITHUB_PATH
-          make android-apk-install-deps || flutter pub get
-
-      - name: Prepare
-        run: make common-prepare
-
-      - name: Clean Flutter & Gradle
-        run: |
-          flutter clean
-          cd android && ./gradlew clean || true; cd ..
-
-      - name: Build APK
-        env:
-          SENTRY_DSN: ""
-          GRADLE_OPTS: "-Xmx3g -Dorg.gradle.jvmargs=-Xmx3g"
-        run: make android-apk-release
-
-      - name: Upload APK
+      - name: Upload APK artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: android-apk-patched-core
+          name: android-apk-release
           path: build/app/outputs/flutter-apk/*.apk
           retention-days: 14
